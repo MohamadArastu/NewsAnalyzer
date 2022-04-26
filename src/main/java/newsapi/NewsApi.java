@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import newsapi.beans.NewsReponse;
 import newsapi.enums.*;
+import newsapi.exceptionModel.NewsApiException;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -104,9 +105,9 @@ public class NewsApi {
         this.endpoint = endpoint;
     }
 
-    protected String requestData() {
+    protected String requestData() throws IOException, NewsApiException {
         String url = buildURL();
-        System.out.println("URL: "+url);
+        System.out.println("URL: " + url);
         URL obj = null;
         try {
             obj = new URL(url);
@@ -116,78 +117,81 @@ public class NewsApi {
         }
         HttpURLConnection con;
         StringBuilder response = new StringBuilder();
-        try {
-            con = (HttpURLConnection) obj.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-        } catch (IOException e) {
-            // TOOO improve ErrorHandling
-            System.out.println("Error "+e.getMessage());
+
+        con = (HttpURLConnection) obj.openConnection();
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
         }
+        in.close();
+
         return response.toString();
     }
 
-    protected String buildURL() {
+    protected String buildURL() throws NewsApiException {
         // TODO ErrorHandling
-        String urlbase = String.format(NEWS_API_URL,getEndpoint().getValue(),getQ(),getApiKey());
+
+        String urlbase = String.format(NEWS_API_URL, getEndpoint().getValue(), getQ(), getApiKey());
         StringBuilder sb = new StringBuilder(urlbase);
 
-        if(getFrom() != null){
+        if (getApiKey() == null || getQ() == null)
+            throw new NewsApiException("NO Api key or Topic was found");
+
+        if (getFrom() != null) {
             sb.append(DELIMITER).append("from=").append(getFrom());
         }
-        if(getTo() != null){
+        if (getTo() != null) {
             sb.append(DELIMITER).append("to=").append(getTo());
         }
-        if(getPage() != null){
+        if (getPage() != null) {
             sb.append(DELIMITER).append("page=").append(getPage());
         }
-        if(getPageSize() != null){
+        if (getPageSize() != null) {
             sb.append(DELIMITER).append("pageSize=").append(getPageSize());
         }
-        if(getLanguage() != null){
+        if (getLanguage() != null) {
             sb.append(DELIMITER).append("language=").append(getLanguage());
         }
-        if(getSourceCountry() != null){
+        if (getSourceCountry() != null) {
             sb.append(DELIMITER).append("country=").append(getSourceCountry());
         }
-        if(getSourceCategory() != null){
+        if (getSourceCategory() != null) {
             sb.append(DELIMITER).append("category=").append(getSourceCategory());
         }
-        if(getDomains() != null){
+        if (getDomains() != null) {
             sb.append(DELIMITER).append("domains=").append(getDomains());
         }
-        if(getExcludeDomains() != null){
+        if (getExcludeDomains() != null) {
             sb.append(DELIMITER).append("excludeDomains=").append(getExcludeDomains());
         }
-        if(getqInTitle() != null){
+        if (getqInTitle() != null) {
             sb.append(DELIMITER).append("qInTitle=").append(getqInTitle());
         }
-        if(getSortBy() != null){
+        if (getSortBy() != null) {
             sb.append(DELIMITER).append("sortBy=").append(getSortBy());
         }
         return sb.toString();
     }
 
-    public NewsReponse getNews() {
+    public NewsReponse getNews() throws NewsApiException, IOException {
         NewsReponse newsReponse = null;
         String jsonResponse = requestData();
-        if(jsonResponse != null && !jsonResponse.isEmpty()){
+        if (jsonResponse != null && !jsonResponse.isEmpty()) {
 
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 newsReponse = objectMapper.readValue(jsonResponse, NewsReponse.class);
-                if(!"ok".equals(newsReponse.getStatus())){
-                    System.out.println("Error: "+newsReponse.getStatus());
+                if (!"ok".equals(newsReponse.getStatus())) {
+                    System.out.println("Error: " + newsReponse.getStatus());
                 }
             } catch (JsonProcessingException e) {
-                System.out.println("Error: "+e.getMessage());
+                System.out.println("Error: " + e.getMessage());
             }
         }
         //TODO improve Errorhandling
+        if (jsonResponse == null)
+            throw new NewsApiException("No data from Server");
         return newsReponse;
     }
 }
