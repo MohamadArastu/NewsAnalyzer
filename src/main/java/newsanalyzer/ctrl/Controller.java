@@ -24,7 +24,7 @@ public class Controller {
 
         //TODO implement Error handling
 
-        //TODO load the news based on the parameters
+        //TODO load the news based on the parameterss
 
         //TODO implement methods for analysis
 
