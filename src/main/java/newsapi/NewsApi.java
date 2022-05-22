@@ -105,7 +105,7 @@ public class NewsApi {
         this.endpoint = endpoint;
     }
 
-    protected String requestData() throws IOException, NewsApiException {
+    protected String requestData() throws NewsApiException, IOException {
         String url = buildURL();
         System.out.println("URL: " + url);
         URL obj = null;
@@ -190,9 +190,10 @@ public class NewsApi {
             }
         }
         //TODO improve Errorhandling
-        if (jsonResponse == null)
-            throw new NewsApiException("No data from Server");
-        return newsReponse;
+        if (newsReponse.getTotalResults() != 0)
+            return newsReponse;
+        else
+            throw new NewsApiException("Could not find any news from web server");
     }
 }
 

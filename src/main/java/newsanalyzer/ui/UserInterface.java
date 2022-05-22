@@ -1,20 +1,19 @@
 package newsanalyzer.ui;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
-
 import newsanalyzer.ctrl.Controller;
-import newsapi.beans.Article;
 import newsapi.enums.Category;
 import newsapi.enums.Country;
 import newsapi.enums.Endpoint;
 import newsapi.exceptionModel.NewsApiException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 
 public class UserInterface {
     private Controller ctrl = new Controller();
@@ -22,9 +21,9 @@ public class UserInterface {
     public void getDataFromCtrl1() {
         System.out.println("Choice Corona News");
         try {
-            String s = ctrl.process("corona", Endpoint.EVERYTHING, Country.at, Category.health);
+            String s = ctrl.process("corona", Endpoint.TOP_HEADLINES, Country.at, Category.health);
             System.out.println(s);
-        } catch (NewsApiException | IOException e) {
+        } catch (NewsApiException | IOException | ExecutionException | InterruptedException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -32,9 +31,9 @@ public class UserInterface {
     public void getDataFromCtrl2() {
         System.out.println("Choice Technology News");
         try {
-            String s = ctrl.process("technology", Endpoint.TOP_HEADLINES, Country.us, Category.technology);
+            String s = ctrl.process("technology", Endpoint.EVERYTHING, Country.us, Category.technology);
             System.out.println(s);
-        } catch (NewsApiException | IOException e) {
+        } catch (NewsApiException | IOException | ExecutionException | InterruptedException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -44,7 +43,7 @@ public class UserInterface {
         try {
             String s = ctrl.process("sport", Endpoint.TOP_HEADLINES, Country.at, Category.sports);
             System.out.println(s);
-        } catch (NewsApiException | IOException e) {
+        } catch (NewsApiException | IOException | ExecutionException | InterruptedException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -66,7 +65,7 @@ public class UserInterface {
 
         try {
             ctrl.process(topic, getChosenEndpoint(givenEndpoint), getChosenCountry(givenCountry), getChosenCategory(givenCategory));
-        } catch (NewsApiException | IOException e) {
+        } catch (NewsApiException | IOException | ExecutionException | InterruptedException e) {
             System.out.println(e.getMessage());
         }
     }
